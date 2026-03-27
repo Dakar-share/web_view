@@ -1,5 +1,5 @@
 name: "Web Screen"
-version: "v0.8.2"
+version: "v1.7.3"
 slug: "web_screen"
 description: "为homeassistant 链接屏幕显示静态网页，并支持触摸点击（Link screen displays static web pages and supports touch and click functionality for homeassistant ）"
 url: "https://github.com/Dakar-share/web_view"
