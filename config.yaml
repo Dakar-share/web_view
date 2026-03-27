@@ -1,0 +1,54 @@
+name: "Web Screen"
+version: "v0.8.2"
+slug: "web_screen"
+description: "为homeassistant 链接屏幕显示静态网页，并支持触摸点击（Link screen displays static web pages and supports touch and click functionality for homeassistant ）"
+url: "https://github.com/ARC-MX/sgcc_electricity_new"
+arch:
+  - aarch64
+  - amd64
+host_network: true
+startup: application
+boot: auto
+init: false
+image: "registry.cn-hangzhou.aliyuncs.com/arcw/sgcc_electricity-{arch}"
+map:
+  # - addons:rw
+  - config:rw
+  # - media:rw
+  - type: data
+    read_only: False
+options:
+  MQTT_BROKER: ""
+  MQTT_PORT: 1883
+  MQTT_USRNAME: ""
+  MQTT_PASSWD: ""
+  SCREEN_URL_ENABLE_NUMBER: 2
+  WEB1_VIEW_WIDTH: 480
+  WEB1_VIEW_HEIGHT: 480
+  SCREEN1_URL: ""
+  SCREEN1_WIDTH: 800
+  SCREEN1_HEIGHT: 800
+  SCREEN1_USRNAME: ""
+  SCREEN1_PASSWD: ""
+  SCREEN1_SEND_TOPIC: ""
+  SCREEN1_RCV_TOPIC: ""
+  SCREEN1_DUMP_HZ: 2
+  SCREEN1_SEND_BUFFER: 40000
+  SCREEN1_JPEG_QUALITY: 90
+schema:
+  MQTT_BROKER: str
+  MQTT_PORT: int
+  MQTT_USRNAME: str
+  MQTT_PASSWD: password
+  WEB1_VIEW_WIDTH: int
+  WEB1_VIEW_HEIGHT: int
+  SCREEN1_URL: str
+  SCREEN1_WIDTH: int
+  SCREEN1_HEIGHT: int
+  SCREEN1_USRNAME: str
+  SCREEN1_PASSWD: str
+  SCREEN1_SEND_TOPIC: str
+  SCREEN1_RCV_TOPIC: str
+  SCREEN1_DUMP_HZ: int
+  SCREEN1_SEND_BUFFER: int
+  SCREEN1_JPEG_QUALITY: int

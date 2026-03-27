@@ -1,0 +1,16 @@
+services:
+  web_screen_app:
+    env_file:
+      - .env
+    image: registry.cn-hangzhou.aliyuncs.com/arcw/sgcc_electricity:latest # for use docker.io: arcw/sgcc_electricity:latest
+    # image:       # for local test
+    container_name: web_screen
+    network_mode: "host"
+    environment:
+      - SET_CONTAINER_TIMEZONE=true
+      - CONTAINER_TIMEZONE=Asia/Shanghai
+    restart: unless-stopped
+    volumes:
+      - ./:/data
+    command: python3 main.py
+    init: true
