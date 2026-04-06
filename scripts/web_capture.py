@@ -113,8 +113,9 @@ def capture_webpage(args):
                 page.locator('body').screenshot(path=write_path, type='jpeg', quality=90)  # 保存为JPEG格式
                 print(f"网页截图保存至: {write_path} w: {opt.viewport_width} h: {opt.viewport_height}")
             elif opt.out_type == "mqtt":
-                screenshot_bytes = page.locator('body').screenshot(type='jpeg', quality=95)
+                #screenshot_bytes = page.locator('body').screenshot(type='jpeg', quality=95)
 
+                screenshot_bytes = page.screenshot(clip={'x': 0, 'y': 0, 'width': opt.viewport_width, 'height': opt.viewport_height},type='jpeg', quality=80)
                 '''
                 scale web window -> screen window
                 '''

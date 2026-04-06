@@ -9,29 +9,29 @@ import os
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
     # mqtt broker config
-    parser.add_argument('--mqtt_broker', type=str, default="192.168.164.132", help='mqtt boker server ip')
+    parser.add_argument('--mqtt_broker', type=str, default="192.168.3.37", help='mqtt boker server ip')
     parser.add_argument('--mqtt_port', type=int, default=1883, help='mqtt boker port')
     parser.add_argument('--mqtt_client_id', type=str, default= f"python-mqtt-sub-{int(time.time())}", help='mqtt client id')
-    parser.add_argument('--mqtt_usrname', type=str, default="dakar", help='mqtt boker usrname')
-    parser.add_argument('--mqtt_password', type=str, default="dakarra2", help='mqtt boker password')
-    parser.add_argument('--mqtt_recv_ctrl_topic', type=str, default="ha-86/touch_coor",help='recv torch coordinates form mqtt')
+    parser.add_argument('--mqtt_usrname', type=str, default="usrname", help='mqtt boker usrname')
+    parser.add_argument('--mqtt_password', type=str, default="***", help='mqtt boker password')
+    parser.add_argument('--mqtt_recv_ctrl_topic', type=str, default="/homeassiatant/sensor_86/touch_x_y",help='recv torch coordinates form mqtt')
     #if out_type == mqtt
-    parser.add_argument('--mqtt_send_screen_topic', type=str, default="/homeassiatant/sensor_2/image",help='send webpage screenshot to mqtt')
+    parser.add_argument('--mqtt_send_screen_topic', type=str, default="/homeassiatant/sensor_86/webshot",help='send webpage screenshot to mqtt')
     parser.add_argument('--mqtt_recv_queue_len', type=int, default=2, help='mqtt queue recv len')
     parser.add_argument('--mqtt_send_queue_len', type=int, default=5, help='mqtt queue send len')
 
     # webview config
-    parser.add_argument('--viewport_width', type=int, default=800, help='config web windows width')
-    parser.add_argument('--viewport_height', type=int, default=800, help='config web windows height')
-    parser.add_argument('--viewport_usrname', type=str, default="dakar", help='mqtt boker usrname')
-    parser.add_argument('--viewport_password', type=str, default="dakarra2", help='mqtt boker password')
+    parser.add_argument('--viewport_width', type=int, default=480, help='config web windows width')
+    parser.add_argument('--viewport_height', type=int, default=480, help='config web windows height')
+    parser.add_argument('--viewport_usrname', type=str, default="usrname", help='mqtt boker usrname')
+    parser.add_argument('--viewport_password', type=str, default="***", help='mqtt boker password')
     # normal config
     parser.add_argument('--touch_width', type=int, default=480, help='config web windows width')
     parser.add_argument('--touch_height', type=int, default=480, help='config web windows height')
-    parser.add_argument('--url', type=str, default="http://192.168.164.132:8123/dashboard-unknown/0", help='control & screenshot url addr')
-    parser.add_argument('--send_hz', type=int, default=2, help='send frq (hz)')
+    parser.add_argument('--url', type=str, default="http://192.168.3.37:8123/hacs-databoard/home", help='control & screenshot url addr')
+    parser.add_argument('--send_hz', type=int, default=5, help='send frq (hz)')
     parser.add_argument('--out_type', type=str, default="mqtt", help='send screen(shot) to mqtt or file or multicas_udp')
-    parser.add_argument('--send_buffer', type=int, default=60000,help='send image buffer')
+    parser.add_argument('--send_buffer', type=int, default=2000,help='send image buffer')
     #if out-type == file
     parser.add_argument('--savedir', type=str, default="./",help='save screenshot dir')
     parser.add_argument('--savename', type=str, default="webpage_screenshot", help='save screenshot file name')
@@ -48,7 +48,7 @@ def init_opt_by_docker_env(opt,screen_num):
     try:
         opt.mqtt_broker = os.getenv("MQTT_BROKER")
         opt.mqtt_port = os.getenv("MQTT_PORT")
-        op.mqtt_usrname = os.getenv("MQTT_USRNAME")
+        opt.mqtt_usrname = os.getenv("MQTT_USRNAME")
         opt.mqtt_password = os.getenv("MQTT_PASSWD")
         opt.viewport_width = os.getenv("WEB%d_VIEW_WIDTH"%screen_num)
         opt.viewport_height = os.getenv("WEB%d_VIEW_HEIGHT"%screen_num)

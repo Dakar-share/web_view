@@ -2,7 +2,7 @@ services:
   web_screen_app:
     env_file:
       - .env
-    image: registry.cn-hangzhou.aliyuncs.com/arcw/sgcc_electricity:latest # for use docker.io: arcw/sgcc_electricity:latest
+    image: crpi-djclsl1v0hr7nb4m.cn-shenzhen.personal.cr.aliyuncs.com/dakar/web_screen:v0.8.9
     # image:       # for local test
     container_name: web_screen
     network_mode: "host"
