@@ -5,6 +5,7 @@ from mqtt_msg import mqtt_worker
 from web_capture import capture_webpage
 import sys
 import os
+import json
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
@@ -45,24 +46,34 @@ def init_opt_by_docker_env(opt,screen_num):
         # 读取 .env 文件
         import dotenv
         dotenv.load_dotenv(verbose=True)
+    if os.path.isfile('/data/options.json'):
+        with open('/data/options.json') as f:
+            options = json.load(f)
+        try:
+            for key, value in options.items():
+                os.environ[key] = str(value)
+            print(f"当前以Homeassistant Add-on 形式运行.")
+        except Exception as e:
+            print(f"Failing to read the options.json file, the program will exit with an error message: {e}.")
+            sys.exit()
     try:
         opt.mqtt_broker = os.getenv("MQTT_BROKER")
-        opt.mqtt_port = os.getenv("MQTT_PORT")
+        opt.mqtt_port = int(os.getenv("MQTT_PORT"))
         opt.mqtt_usrname = os.getenv("MQTT_USRNAME")
         opt.mqtt_password = os.getenv("MQTT_PASSWD")
-        opt.viewport_width = os.getenv("WEB%d_VIEW_WIDTH"%screen_num)
-        opt.viewport_height = os.getenv("WEB%d_VIEW_HEIGHT"%screen_num)
+        opt.viewport_width = int(os.getenv("WEB%d_VIEW_WIDTH"%screen_num))
+        opt.viewport_height = int(os.getenv("WEB%d_VIEW_HEIGHT"%screen_num))
         opt.url = os.getenv("SCREEN%d_URL"%screen_num)
-        opt.touch_width = os.getenv("SCREEN%d_WIDTH"%screen_num)
-        opt.touch_height = os.getenv("SCREEN%d_HEIGHT"%screen_num)
+        opt.touch_width = int(os.getenv("SCREEN%d_WIDTH"%screen_num))
+        opt.touch_height = int(os.getenv("SCREEN%d_HEIGHT"%screen_num))
         opt.viewport_usrname = os.getenv("SCREEN%d_USRNAME"%screen_num)
         opt.viewport_password = os.getenv("SCREEN%d_PASSWD"%screen_num)
         opt.mqtt_send_screen_topic = os.getenv("SCREEN%d_SEND_TOPIC"%screen_num)
         opt.mqtt_recv_ctrl_topic = os.getenv("SCREEN%d_RCV_TOPIC"%screen_num)
-        opt.send_hz = os.getenv("SCREEN%d_DUMP_HZ"%screen_num)
-        opt.send_buffer = os.getenv("SCREEN%d_SEND_BUFFER"%screen_num)
+        opt.send_hz = int(os.getenv("SCREEN%d_DUMP_HZ"%screen_num))
+        opt.send_buffer = int(os.getenv("SCREEN%d_SEND_BUFFER"%screen_num))
 
-        print(f"The current run runs as a docker image.")
+        print(f"The current run runs as a docker image. send buffer is:",opt.send_buffer)
     except Exception as e:
         print(f"Failing to read the .env file, the program will exit with an error message: {e}.")
         sys.exit()
@@ -87,11 +98,11 @@ if __name__ == '__main__':
     jobs = []
     opt = parse_opt()
     #for add on docker
-    #max_url_num = get_max_url_config()
-    max_url_num = 1
+    max_url_num = get_max_url_config()
+    #max_url_num = 1
     print("star %d url capture.."%max_url_num)
     for i in range(0,max_url_num):
-        #init_opt_by_docker_env(opt,i)
+        init_opt_by_docker_env(opt,i+1)
         #mqtt收发服务
         mqtt_q_recv = multiprocessing.Queue(opt.mqtt_recv_queue_len)
         mqtt_q_send = multiprocessing.Queue(opt.mqtt_send_queue_len)
