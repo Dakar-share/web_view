@@ -43,7 +43,7 @@ def mqtt_worker(args):
     client.loop_start()  # 启动非阻塞的网络循
     while True:
         message = mqtt_q_send.get()
-        print(len(message))
+        #print(len(message))
         result = client.publish(opt.mqtt_send_screen_topic,bytearray(message), qos=0)
         if result.rc != mqtt.MQTT_ERR_SUCCESS:
             print("消息发布失败")

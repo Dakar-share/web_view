@@ -1,12 +1,15 @@
 from playwright.sync_api import sync_playwright
 from PIL import Image
+import base64
 import io
 import time
 
+capture_flag = False
 def capture_webpage(args):
     opt=args[0]
     mqtt_q = args[1]
     mqtt_q_img = args[2]
+    global capture_flag
     with sync_playwright() as p:
         # 启动浏览器（无头模式，不显示界面）
         browser = p.chromium.launch(headless=True)
@@ -19,7 +22,7 @@ def capture_webpage(args):
 
         # 导航到目标网页
         page.goto(opt.url)
-
+        cdp_session = page.context.new_cdp_session(page)
         # 自动等待并填写用户名和密码
         # 设置认证信息（若需要）
 
@@ -63,8 +66,40 @@ def capture_webpage(args):
         scale_x = opt.viewport_width/(opt.touch_width*1.0)
         scale_y = opt.viewport_height/(opt.touch_height*1.0)
         print(f"start capture web:{opt.url} frame freq:{opt.send_hz} hz")
+
+        # 3. 定义处理截图帧的回调函数
+        def on_screencast_frame(params):
+            global  capture_flag
+            frame_data = params['data']  # base64编码的图像数据
+            session_id = params['sessionId']
+            capture_flag  = True
+            # 解码并保存为图片文件（示例：以时间戳命名）
+            screenshot_bytes = base64.b64decode(frame_data)
+            img_len = len(screenshot_bytes)
+            if (img_len > opt.send_buffer):
+                split_n = len(screenshot_bytes) // opt.send_buffer
+                for i in range(split_n):
+                    mqtt_q_img.put(screenshot_bytes[i * opt.send_buffer:(i + 1) * opt.send_buffer])
+                if len(screenshot_bytes) % opt.send_buffer:
+                    mqtt_q_img.put(screenshot_bytes[split_n * opt.send_buffer:])
+            else:
+                mqtt_q_img.put(screenshot_bytes)
+            cdp_session.send('Page.screencastFrameAck', {'sessionId': session_id})
+            #time.sleep(1.0 / opt.send_hz)
+
+        # 绑定事件监听器
+        cdp_session.on('Page.screencastFrame', on_screencast_frame)
+        cdp_session.send('Page.startScreencast', {
+            'format': 'jpeg',
+            'quality': 90,
+            'maxWidth': opt.viewport_width,  # 可选：限制最大尺寸
+            'maxHeight': opt.viewport_height,
+            'everyNthFrame': 1  # 可选：每N帧捕获一次
+        })
         while True:
             act_time = time.time()
+            # todo for flush cdp session
+            page.wait_for_timeout(1)
             if(mqtt_q.empty() == False):
                 buf = mqtt_q.get()
                 '''
@@ -107,38 +142,39 @@ def capture_webpage(args):
                 print("检测到body样式变化，可能有弹窗。")
             """
 
-            page.wait_for_load_state('networkidle')
+            #page.wait_for_load_state('networkidle')
             if opt.out_type == "file":
                 write_path = opt.savedir + opt.savename + "_" + str(count) + ".jpg"
                 page.locator('body').screenshot(path=write_path, type='jpeg', quality=90)  # 保存为JPEG格式
                 print(f"网页截图保存至: {write_path} w: {opt.viewport_width} h: {opt.viewport_height}")
             elif opt.out_type == "mqtt":
-                #screenshot_bytes = page.locator('body').screenshot(type='jpeg', quality=95)
-
-                screenshot_bytes = page.screenshot(clip={'x': 0, 'y': 0, 'width': opt.viewport_width, 'height': opt.viewport_height},type='jpeg', quality=80)
-                '''
-                scale web window -> screen window
-                '''
-                img = Image.open(io.BytesIO(screenshot_bytes))
-                img_rsz = img.resize((opt.touch_width,opt.touch_height),Image.Resampling.LANCZOS)
-                screenshot_bytes = io.BytesIO()
-                img_rsz.save(screenshot_bytes, format='JPEG', quality=90)
-                screenshot_bytes = screenshot_bytes.getvalue()
-
-                this_img_hash = hash(screenshot_bytes)
-                img_len = len(screenshot_bytes)
-                #print("this img hash:", str(this_img_hash))
-                if(this_img_hash != old_img_hash):
-                    if(img_len > opt.send_buffer):
-                        split_n = len(screenshot_bytes) // opt.send_buffer
-                        for i in range(split_n):
-                            mqtt_q_img.put(screenshot_bytes[i*opt.send_buffer:(i+1)*opt.send_buffer])
-                        if len(screenshot_bytes) % opt.send_buffer:
-                            mqtt_q_img.put(screenshot_bytes[split_n * opt.send_buffer:])
-                    else:
-                        mqtt_q_img.put(screenshot_bytes)
-                    old_img_hash = this_img_hash
-
+                # #screenshot_bytes = page.locator('body').screenshot(type='jpeg', quality=95)
+                # page.wait_for_load_state('networkidle')
+                # screenshot_bytes = page.screenshot(clip={'x': 0, 'y': 0, 'width': opt.viewport_width, 'height': opt.viewport_height},type='jpeg', quality=80)
+                # '''
+                # scale web window -> screen window
+                # '''
+                # img = Image.open(io.BytesIO(screenshot_bytes))
+                # img_rsz = img.resize((opt.touch_width,opt.touch_height),Image.Resampling.LANCZOS)
+                # screenshot_bytes = io.BytesIO()
+                # img_rsz.save(screenshot_bytes, format='JPEG', quality=90)
+                # screenshot_bytes = screenshot_bytes.getvalue()
+                #
+                # this_img_hash = hash(screenshot_bytes)
+                # img_len = len(screenshot_bytes)
+                # #print("this img hash:", str(this_img_hash))
+                # if(this_img_hash != old_img_hash):
+                #     if(img_len > opt.send_buffer):
+                #         split_n = len(screenshot_bytes) // opt.send_buffer
+                #         for i in range(split_n):
+                #             mqtt_q_img.put(screenshot_bytes[i*opt.send_buffer:(i+1)*opt.send_buffer])
+                #         if len(screenshot_bytes) % opt.send_buffer:
+                #             mqtt_q_img.put(screenshot_bytes[split_n * opt.send_buffer:])
+                #     else:
+                #         mqtt_q_img.put(screenshot_bytes)
+                #     old_img_hash = this_img_hash
+                capture_flag = False
+                #old_img_hash = 0 #"not use.."
             elif opt.out_type == "multicas_udp":
                 screenshot_bytes = page.locator('body').screenshot(type='jpeg', quality=90)
                 #todo
@@ -147,6 +183,6 @@ def capture_webpage(args):
             #screenshot_bytes = page.screenshot(path=write_path,full_page=True, type='jpeg', quality=90)  # 保存为JPEG格式
             #screenshot_bytes = page.screenshot(path=write_path,clip={'x': 10, 'y': 10, 'width': 800, 'height': 600}, type='jpeg', quality=90)  # 保存为JPEG格式
             time.sleep(1.0 / opt.send_hz)
-            print(f"speed time:{str(time.time()-act_time)}")
+            #print(f"speed time:{str(time.time()-act_time)}")
             count = count + 1
         browser.close()

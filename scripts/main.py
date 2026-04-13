@@ -19,7 +19,7 @@ def parse_opt(known=False):
     #if out_type == mqtt
     parser.add_argument('--mqtt_send_screen_topic', type=str, default="/homeassiatant/sensor_86/webshot",help='send webpage screenshot to mqtt')
     parser.add_argument('--mqtt_recv_queue_len', type=int, default=2, help='mqtt queue recv len')
-    parser.add_argument('--mqtt_send_queue_len', type=int, default=5, help='mqtt queue send len')
+    parser.add_argument('--mqtt_send_queue_len', type=int, default=20, help='mqtt queue send len')
 
     # webview config
     parser.add_argument('--viewport_width', type=int, default=480, help='config web windows width')
@@ -30,7 +30,7 @@ def parse_opt(known=False):
     parser.add_argument('--touch_width', type=int, default=480, help='config web windows width')
     parser.add_argument('--touch_height', type=int, default=480, help='config web windows height')
     parser.add_argument('--url', type=str, default="http://192.168.3.37:8123/hacs-databoard/home", help='control & screenshot url addr')
-    parser.add_argument('--send_hz', type=int, default=5, help='send frq (hz)')
+    parser.add_argument('--send_hz', type=int, default=10, help='send frq (hz)')
     parser.add_argument('--out_type', type=str, default="mqtt", help='send screen(shot) to mqtt or file or multicas_udp')
     parser.add_argument('--send_buffer', type=int, default=2000,help='send image buffer')
     #if out-type == file
