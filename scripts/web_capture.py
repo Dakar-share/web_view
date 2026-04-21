@@ -1,7 +1,7 @@
 from playwright.sync_api import sync_playwright
-from PIL import Image
+#from PIL import Image
 import base64
-import io
+#import io
 import time
 
 capture_flag = False
@@ -91,7 +91,7 @@ def capture_webpage(args):
         cdp_session.on('Page.screencastFrame', on_screencast_frame)
         cdp_session.send('Page.startScreencast', {
             'format': 'jpeg',
-            'quality': 90,
+            'quality': opt.img_qualty,
             'maxWidth': opt.viewport_width,  # 可选：限制最大尺寸
             'maxHeight': opt.viewport_height,
             'everyNthFrame': 1  # 可选：每N帧捕获一次
@@ -127,6 +127,7 @@ def capture_webpage(args):
                         page.mouse.click(int(buf[1]), int(buf[2]), button="left")
                     except:
                         print("bad touch screen coordinate value")
+                        break
                     #page.wait_for_load_state('networkidle')
                 else:
                     print("bad touch screen coordinate")

@@ -26,6 +26,7 @@ def parse_opt(known=False):
     parser.add_argument('--viewport_height', type=int, default=480, help='config web windows height')
     parser.add_argument('--viewport_usrname', type=str, default="usrname", help='mqtt boker usrname')
     parser.add_argument('--viewport_password', type=str, default="***", help='mqtt boker password')
+    parser.add_argument('--img_qualty', type=int, default=90, help='screenshort qualty')
     # normal config
     parser.add_argument('--touch_width', type=int, default=480, help='config web windows width')
     parser.add_argument('--touch_height', type=int, default=480, help='config web windows height')
@@ -72,6 +73,7 @@ def init_opt_by_docker_env(opt,screen_num):
         opt.mqtt_recv_ctrl_topic = os.getenv("SCREEN%d_RCV_TOPIC"%screen_num)
         opt.send_hz = int(os.getenv("SCREEN%d_DUMP_HZ"%screen_num))
         opt.send_buffer = int(os.getenv("SCREEN%d_SEND_BUFFER"%screen_num))
+        opt.img_qualty = int(os.getenv("SCREEN%d_JPEG_QUALITY"%screen_num))
 
         print(f"The current run runs as a docker image. send buffer is:",opt.send_buffer)
     except Exception as e:
