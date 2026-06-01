@@ -75,7 +75,7 @@ def init_opt_by_docker_env(opt,screen_num):
         opt.send_buffer = int(os.getenv("SCREEN%d_SEND_BUFFER"%screen_num))
         opt.img_qualty = int(os.getenv("SCREEN%d_JPEG_QUALITY"%screen_num))
 
-        print(f"The current run runs as a docker image. send buffer is:",opt.send_buffer)
+        print(f"The current run runs as a docker image. send buffer is:%d img_qualty: ",opt.send_buffer,opt.img_qualty)
     except Exception as e:
         print(f"Failing to read the .env file, the program will exit with an error message: {e}.")
         sys.exit()
