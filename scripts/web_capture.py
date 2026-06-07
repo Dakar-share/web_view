@@ -116,6 +116,9 @@ def capture_webpage(args):
                     When the touch screen is powered on for the first time, 
                     an online message should be sent to obtain the first frame display
                     '''
+                    page.mouse.click(15,15, button="left")
+                    time.sleep(3)
+                    page.mouse.click(opt.viewport_width-30,20,button="left")
                     old_img_hash = 0
                     print("touch screen online ...")
                 elif buf[0] == "update":
