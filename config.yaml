@@ -30,7 +30,7 @@ options:
   SCREEN1_HEIGHT: 480
   SCREEN1_USRNAME: ""
   SCREEN1_PASSWD: ""
-  SCREEN1_SEND_TOPIC: "homeassiatant/sensor_86/webshot"
+  SCREEN1_SEND_TOPIC: "/homeassiatant/sensor_86/webshot"
   SCREEN1_RCV_TOPIC: "/homeassiatant/sensor_86/touch_x_y"
   SCREEN1_DUMP_HZ: 10
   SCREEN1_SEND_BUFFER: 4000
